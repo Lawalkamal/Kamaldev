@@ -16,13 +16,11 @@ const SETTLED = 0.0006;
 export default function ScrollProgress() {
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
-  const headRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const track = trackRef.current;
     const fill = fillRef.current;
-    const head = headRef.current;
-    if (!track || !fill || !head) return;
+    if (!track || !fill) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const ease = reduced ? 1 : EASE;
@@ -34,9 +32,6 @@ export default function ScrollProgress() {
 
     const paint = () => {
       fill.style.transform = `scaleX(${current})`;
-      head.style.transform = `translate3d(${current * width}px, 0, 0)`;
-      // The head only means something while there is progress to point at.
-      head.style.opacity = current > 0.002 && current < 0.998 ? "1" : "0";
     };
 
     const tick = () => {
@@ -78,7 +73,6 @@ export default function ScrollProgress() {
   return (
     <div className="progress-track" ref={trackRef} aria-hidden="true">
       <div className="progress-fill" ref={fillRef} />
-      <div className="progress-head" ref={headRef} />
     </div>
   );
 }

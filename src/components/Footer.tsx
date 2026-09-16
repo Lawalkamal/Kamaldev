@@ -69,18 +69,10 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="pt-8 border-t border-border">
+          <p className="text-center text-sm text-muted-foreground py-6">
             © {new Date().getFullYear()} Kamal. All rights reserved.
           </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Terms of Service
-            </a>
-          </div>
         </div>
       </div>
     </footer>

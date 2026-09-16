@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 import VisualEditsMessenger from "../visual-edits/VisualEditsMessenger";
 import ErrorReporter from "@/components/ErrorReporter";
 import Preloader from "@/components/Preloader";
@@ -20,29 +21,40 @@ export default function RootLayout({
   // `data-preloader` is written onto <html> by the guard script before
   // hydration — an intentional mismatch, so React is told not to report it.
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="color-scheme" content="light dark" />
+      </head>
       <body className="antialiased">
-        {/* First thing in the body, so it runs while the parser is still
-            reading the document — before anything is painted. */}
-        <script
-          id="preloader-guard"
-          dangerouslySetInnerHTML={{ __html: PRELOADER_GUARD_SCRIPT }}
-        />
-        <ErrorReporter />
-        <Script
-          src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts//route-messenger.js"
-          strategy="afterInteractive"
-          data-target-origin="*"
-          data-message-type="ROUTE_CHANGE"
-          data-include-search-params="true"
-          data-only-in-iframe="true"
-          data-debug="true"
-          data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
-        />
-        <SmoothScroll />
-        <Preloader />
-        {children}
-        <VisualEditsMessenger />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          storageKey="kamal-theme"
+          disableTransitionOnChange={false}
+        >
+          {/* First thing in the body, so it runs while the parser is still
+              reading the document — before anything is painted. */}
+          <script
+            id="preloader-guard"
+            dangerouslySetInnerHTML={{ __html: PRELOADER_GUARD_SCRIPT }}
+          />
+          <ErrorReporter />
+          <Script
+            src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts//route-messenger.js"
+            strategy="afterInteractive"
+            data-target-origin="*"
+            data-message-type="ROUTE_CHANGE"
+            data-include-search-params="true"
+            data-only-in-iframe="true"
+            data-debug="true"
+            data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
+          />
+          <SmoothScroll />
+          <Preloader />
+          {children}
+          <VisualEditsMessenger />
+        </ThemeProvider>
       </body>
     </html>
   );

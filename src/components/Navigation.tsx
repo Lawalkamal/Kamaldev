@@ -2,16 +2,17 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Moon, Sun, Menu, X } from 'lucide-react'
+import { Sun, Moon, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSectionNav } from '@/hooks/use-section-nav'
 import ScrollProgress from '@/components/ScrollProgress'
+import { useTheme } from 'next-themes'
 
 export default function Navigation() {
   const goToSection = useSectionNav()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const { theme, setTheme, resolvedTheme } = useTheme()
   const scrolledRef = useRef(false)
 
   useEffect(() => {
@@ -29,9 +30,7 @@ export default function Navigation() {
   }, [])
 
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(newTheme)
-    document.documentElement.classList.toggle('dark')
+    setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   const scrollToSection = (id: string) => {
@@ -94,7 +93,7 @@ export default function Navigation() {
                 className="p-2 rounded-lg hover:bg-secondary transition-colors"
                 aria-label="Toggle theme"
               >
-                {theme === 'dark' ? (
+                {resolvedTheme === 'dark' ? (
                   <Sun className="w-5 h-5" />
                 ) : (
                   <Moon className="w-5 h-5" />

@@ -179,21 +179,6 @@
   box-shadow: 0 0 14px -1px color-mix(in srgb, var(--foreground) 45%, transparent);
 }
 
-.progress-head {
-  position: absolute;
-  top: 1px;
-  left: 0;
-  width: 8px;
-  height: 8px;
-  margin: -4px 0 0 -4px;
-  border-radius: 9999px;
-  background: var(--foreground);
-  box-shadow: 0 0 16px 2px color-mix(in srgb, var(--foreground) 50%, transparent);
-  opacity: 0;
-  transform: translate3d(0, 0, 0);
-  will-change: transform, opacity;
-}
-
 /* ------------------------------------------------------------------ */
 /* Route transition                                                    */
 /* ------------------------------------------------------------------ */
