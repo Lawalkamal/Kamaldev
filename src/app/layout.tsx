@@ -24,6 +24,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light dark" />
+        {/* The scroll reveal in the "While You're Here" section is a JS
+            enhancement — without it those cards would stay hidden. */}
+        <noscript>
+          <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>
+        </noscript>
       </head>
       <body className="antialiased">
         <ThemeProvider

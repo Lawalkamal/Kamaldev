@@ -379,6 +379,106 @@ html[data-preloader="skip"] .preloader {
 }
 
 /* ------------------------------------------------------------------ */
+/* "While You're Here"                                                 */
+/* ------------------------------------------------------------------ */
+
+/* Each card rises into place once, when the section reaches the viewport.
+   The stagger comes from --reveal-delay, set per card in the component.
+
+   The revealed state is a data attribute rather than a class on purpose:
+   these cards re-render (the flip card toggles), and React rewrites
+   `className` on every change, which would wipe a class added from
+   outside. An attribute React never sets on them survives.
+
+   Reveal-on-scroll is an enhancement, so layout.tsx carries a <noscript>
+   override and the hook bails out early without JS. */
+.reveal {
+  transition:
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal:not([data-revealed]) {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+}
+
+/* Flip card: perspective on the card, the rotation on the inner wrapper,
+   so the two faces trade places in 3D. */
+.flip-card {
+  perspective: 1400px;
+}
+
+.flip-card-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 750ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.flip-card.is-flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-face-back {
+  transform: rotateY(180deg);
+}
+
+/* Vinyl record: idle until the pointer is on the Spotify face. */
+@keyframes vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vinyl {
+  animation: vinyl-spin 4s linear infinite;
+  animation-play-state: paused;
+}
+
+.vinyl.is-spinning {
+  animation-play-state: running;
+}
+
+/* Re-runs on every count change (the number is keyed on its value). */
+@keyframes count-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -0.32em, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.count-in {
+  display: inline-block;
+  animation: count-in 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes flash-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-flash {
+  animation: flash-out 600ms ease-out forwards;
+}
+
+/* ------------------------------------------------------------------ */
 /* Motion preferences                                                  */
 /* ------------------------------------------------------------------ */
 

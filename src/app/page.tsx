@@ -6,6 +6,7 @@ import Hero from '@/components/Hero'
 import Skills from '@/components/Skills'
 import About from '@/components/About'
 import Projects from '@/components/Projects'
+import WhileYoureHere from '@/components/WhileYoureHere'
 import Testimonials from '@/components/Testimonials'
 import Contact from '@/components/Contact'
 import Footer from '@/components/Footer'
@@ -66,6 +67,7 @@ export default function Home() {
         <Skills />
         <About />
         <Projects />
+        <WhileYoureHere />
         <Testimonials />
         <Contact />
       </PageTransition>
