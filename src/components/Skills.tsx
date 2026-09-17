@@ -1,18 +1,20 @@
 "use client"
 
-import { Code2, Smartphone, Database, GitBranch, Palette, Zap, Layout, Server } from 'lucide-react'
+import { Code2, Smartphone, Database, GitBranch, Palette, Zap, Layout, Server, Bot, BotMessageSquare } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 
 const skills = [
   { name: 'HTML & CSS', icon: Code2, color: 'text-orange-500' },
   { name: 'JavaScript', icon: Zap, color: 'text-yellow-500' },
   { name: 'React', icon: Layout, color: 'text-cyan-500' },
-  { name: 'Next.js', icon: Server, color: 'text-white' },
+  { name: 'Next.js', icon: Server, color: 'text-gray-500' },
   { name: 'Tailwind CSS', icon: Palette, color: 'text-sky-500' },
   { name: 'Git & GitHub', icon: GitBranch, color: 'text-purple-500' },
   { name: 'Firebase', icon: Database, color: 'text-amber-500' },
   { name: 'Responsive Design', icon: Smartphone, color: 'text-pink-500' },
   { name: 'UI/UX Design', icon: Palette, color: 'text-violet-500' },
+  { name: 'AI Integration', icon: Bot, color: 'text-green-500' },
+  { name: 'Telegram Bot Development', icon: BotMessageSquare, color: 'text-blue-500' }
 ]
 
 export default function Skills() {

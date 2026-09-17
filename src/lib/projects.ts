@@ -17,19 +17,19 @@ export type Project = {
  */
 export const projects: Project[] = [
   {
-    title: "E-Commerce Platform",
+    title: "Garutech",
     description:
       "Full-stack e-commerce solution with real-time inventory, admin dashboard etc.",
     image:
-      "https://res.cloudinary.com/dxhjlkdx0/image/upload/v1764943362/xggiscz6k1j660x0llab.png",
-    tags: ["TypeScript", "Tailwind CSS", "Firebase", "Node.js"],
+      "https://res.cloudinary.com/dxhjlkdx0/image/upload/v1789645057/xggiscz6k1j660x0llab.png",
+    tags: ["TypeScript", "Tailwind CSS", "Firebase", "Node.js", "Ai Integration"],
     link: "https://garutech.ng/",
     github: "#",
     category: "Web Development",
     featured: true,
   },
   {
-    title: "Daily Quote Generator",
+    title: "Quotes",
     description: "Daily motivation quote of great scholars.",
     image:
       "https://res.cloudinary.com/dxhjlkdx0/image/upload/v1767177549/s7kxpdfdgoiwllt0qzsf.png",
@@ -40,7 +40,7 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    title: "Lost and Found Web App",
+    title: "FindIt",
     description:
       "Modern lost and found app with cool design, media sharing and real-time inventory",
     image:
@@ -49,10 +49,10 @@ export const projects: Project[] = [
     link: "https://lawalkamal.github.io/Lost-and-Found/",
     github: "#",
     category: "Web Development",
-    featured: true,
+    featured: false,
   },
   {
-    title: "Product Figma Design",
+    title: "Bikez",
     description:
       "Figma design of an ecommerce website for bikes. Ultra-Modern design, prototyping.  ",
     image:
@@ -64,7 +64,7 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    title: "Upholstery Website Design",
+    title: "Lady-G Furniture and Interior",
     description:
       "Showcase of a modern upholstery website design with a focus on user experience and aesthetics.",
     image:
@@ -74,6 +74,30 @@ export const projects: Project[] = [
     github: "#",
     category: "UI Design",
     featured: true,
+  },
+  {
+    title: "Rawzaam",
+    description:
+      "RAWZAAM FASHION CONCEPT creates Ready to Wear, Fashion Cloth, Caps, Hijab and Jalabia for those who value craftsmanship over fleeting trends — finished with our signature stoning and embellishment work.",
+    image:
+      "https://res.cloudinary.com/dxhjlkdx0/image/upload/v1789645242/vemrgg7w1lwiaqhkvqjf.png",
+    tags: ["UI Design", "Custom Design", "Tailwind CSS", "Upholstery", "E-commerce"],
+    link: "#",
+    github: "#",
+    category: "Web Development",
+    featured: false,
+  },
+  {
+    title: "NOVA - Telegram Bot",
+    description:
+      "A modern Telegram bot for the NOVA platform, built with Hermes and integrated with various APIs.",
+    image:
+      "https://res.cloudinary.com/dxhjlkdx0/image/upload/v1789645668/s1gdatrudehrrrv7j0sh.png",
+    tags: ["Telegram Bot", "Hermes", "API Integration"],
+    link: "#",
+    github: "#",
+    category: "AI Integration",
+    featured: false,
   },
 ];
 

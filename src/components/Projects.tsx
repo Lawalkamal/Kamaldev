@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ExternalLink, Github, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { featuredProjects as projects, projects as allProjects } from "@/lib/projects";
+import { featuredProjects as projects } from "@/lib/projects";
 
 export default function Projects() {
   return (
@@ -98,9 +98,6 @@ export default function Projects() {
           >
             <Link href="/projects">
               View All Projects
-              <span className="ml-2 text-muted-foreground">
-                ({allProjects.length})
-              </span>
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
