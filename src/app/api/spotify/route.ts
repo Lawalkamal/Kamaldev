@@ -13,7 +13,13 @@ import { NextResponse } from "next/server";
  * shows its "Nothing playing recently" state.
  */
 
-const CACHE_MS = 60_000;
+/**
+ * Cached per server instance to stay well clear of Spotify's rate limits.
+ * A live track is re-checked sooner than a finished one, because that is the
+ * thing a visitor is looking at the card to see.
+ */
+const PLAYING_CACHE_MS = 10_000;
+const IDLE_CACHE_MS = 45_000;
 
 /**
  * Access tokens live an hour, so they are kept until just before they expire
@@ -31,9 +37,11 @@ export type SpotifyTrack = {
   artist: string;
   playedAt: string;
   url: string;
+  /** True when this is the track playing right now, false when it has ended. */
+  playing: boolean;
 };
 
-let cache: { data: SpotifyTrack; at: number } | null = null;
+let cache: { data: SpotifyTrack; at: number; ttl: number } | null = null;
 
 export const dynamic = "force-dynamic";
 
@@ -86,8 +94,81 @@ async function getAccessToken(): Promise<string | null> {
   return accessToken.value;
 }
 
+type SpotifyArtist = { name: string };
+type SpotifyItem = {
+  name?: string;
+  artists?: SpotifyArtist[];
+  album?: { name?: string; images?: { url?: string }[] };
+  external_urls?: { spotify?: string };
+};
+
+function toTrack(
+  item: SpotifyItem | undefined,
+  playedAt: string,
+  playing: boolean
+): SpotifyTrack | null {
+  if (!item?.name) return null;
+  return {
+    albumArt: item.album?.images?.[0]?.url ?? null,
+    album: item.album?.name ?? "",
+    name: item.name,
+    artist: (item.artists ?? []).map((a) => a.name).join(", "),
+    playedAt,
+    url: item.external_urls?.spotify ?? "https://open.spotify.com",
+    playing,
+  };
+}
+
+/**
+ * What is playing this second. Needs the `user-read-currently-playing` scope:
+ * without it Spotify answers 403, which is treated as "nothing playing" so an
+ * older refresh token falls through to the recently-played call instead of
+ * breaking the card.
+ */
+let scopeWarned = false;
+
+async function fetchCurrentlyPlaying(token: string): Promise<SpotifyTrack | null> {
+  const res = await fetch(
+    "https://api.spotify.com/v1/me/player/currently-playing?additional_types=track",
+    { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }
+  );
+
+  // Said once, because otherwise the card quietly degrades to the last finished
+  // track and looks like a Spotify problem rather than a missing scope.
+  if ((res.status === 401 || res.status === 403) && !scopeWarned) {
+    scopeWarned = true;
+    console.warn(
+      `[spotify] currently-playing returned ${res.status}: the refresh token has no ` +
+        "user-read-currently-playing scope, so the card only shows the last finished " +
+        "track. Re-run `npm run spotify:auth` and update SPOTIFY_REFRESH_TOKEN."
+    );
+    return null;
+  }
+
+  // 204 means the request worked and nothing is playing.
+  if (res.status === 204 || !res.ok) return null;
+
+  const data = await res.json().catch(() => null);
+  if (!data?.is_playing) return null;
+
+  return toTrack(data.item, new Date().toISOString(), true);
+}
+
+/** The last finished track, which is also what shows while nothing plays. */
+async function fetchRecentlyPlayed(token: string): Promise<SpotifyTrack | null> {
+  const res = await fetch(
+    "https://api.spotify.com/v1/me/player/recently-played?limit=1",
+    { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }
+  );
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const item = data?.items?.[0];
+  return toTrack(item?.track, item?.played_at ?? new Date().toISOString(), false);
+}
+
 export async function GET() {
-  if (cache && Date.now() - cache.at < CACHE_MS) {
+  if (cache && Date.now() - cache.at < cache.ttl) {
     return NextResponse.json(cache.data);
   }
 
@@ -103,32 +184,19 @@ export async function GET() {
   }
 
   try {
-    const res = await fetch(
-      "https://api.spotify.com/v1/me/player/recently-played?limit=1",
-      { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }
-    );
-    if (!res.ok) {
-      return NextResponse.json({ error: "Spotify API error" });
-    }
+    const result =
+      (await fetchCurrentlyPlaying(token)) ??
+      (await fetchRecentlyPlayed(token));
 
-    const data = await res.json();
-    const item = data?.items?.[0];
-    if (!item?.track) {
+    if (!result) {
       return NextResponse.json({ error: "Nothing playing recently" });
     }
 
-    const track = item.track;
-    const result: SpotifyTrack = {
-      albumArt: track.album?.images?.[0]?.url ?? null,
-      album: track.album?.name ?? "",
-      name: track.name ?? "",
-      artist:
-        track.artists?.map((a: { name: string }) => a.name).join(", ") ?? "",
-      playedAt: item.played_at ?? new Date().toISOString(),
-      url: track.external_urls?.spotify ?? "https://open.spotify.com",
+    cache = {
+      data: result,
+      at: Date.now(),
+      ttl: result.playing ? PLAYING_CACHE_MS : IDLE_CACHE_MS,
     };
-
-    cache = { data: result, at: Date.now() };
     return NextResponse.json(result);
   } catch {
     return NextResponse.json({ error: "Spotify unavailable" });

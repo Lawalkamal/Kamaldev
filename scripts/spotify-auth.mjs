@@ -28,7 +28,10 @@ import path from "node:path";
 import process from "node:process";
 
 const ENV_PATH = path.join(process.cwd(), ".env.local");
-const SCOPES = ["user-read-recently-played"];
+// recently-played is the fallback face; currently-playing is what makes the
+// card follow along as tracks change. A refresh token keeps whatever scopes it
+// was minted with, so adding one here means re-running this script.
+const SCOPES = ["user-read-currently-playing", "user-read-recently-played"];
 
 const args = process.argv.slice(2);
 const flag = (name) => args.some((a) => a === `--${name}`);

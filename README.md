@@ -54,7 +54,7 @@ Copy set in stone (social links, the book) lives in `src/lib/now.ts`.
 | `TURSO_AUTH_TOKEN` | Visitor counter | Paired with the URL above. |
 | `SPOTIFY_CLIENT_ID` | Flip card (Spotify face) | From a [Spotify app](https://developer.spotify.com/dashboard). |
 | `SPOTIFY_CLIENT_SECRET` | Flip card (Spotify face) | Same app as above. |
-| `SPOTIFY_REFRESH_TOKEN` | Flip card (Spotify face) | One-time Authorization Code flow with the `user-read-recently-played` scope. It does not expire. |
+| `SPOTIFY_REFRESH_TOKEN` | Flip card (Spotify face) | One-time Authorization Code flow with the `user-read-currently-playing` and `user-read-recently-played` scopes. It does not expire. |
 
 Put them in `.env.local` (already git-ignored). On Vercel, add the same names
 under Project Settings → Environment Variables.
@@ -90,3 +90,9 @@ The refresh token does not expire, so this is a one-time step. Re-run it if you
 reset the app's client secret, or if the server logs
 `[spotify] token refresh failed`. On Vercel only the three variables matter —
 the redirect URI is used by the local script alone.
+
+**Re-run it whenever the scopes change.** A refresh token is minted with the
+scopes requested at the time and never gains new ones, so an older token without
+`user-read-currently-playing` leaves the card on the last *finished* track rather
+than the one playing now. Re-running takes seconds and replaces the token in
+`.env.local` — remember Vercel needs the new value and a redeploy too.

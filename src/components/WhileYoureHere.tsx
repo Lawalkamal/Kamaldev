@@ -40,6 +40,8 @@ type SpotifyTrack = {
   artist: string;
   playedAt: string;
   url: string;
+  /** Absent on responses cached before this field existed — treated as false. */
+  playing?: boolean;
 };
 
 const SOCIAL_ICONS = {
@@ -364,39 +366,67 @@ function FlipCard({ revealDelay }: { revealDelay: number }) {
   const [track, setTrack] = useState<SpotifyTrack | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // This used to fetch once on mount and never again, so a tab left open sat
+  // on whatever was playing when it loaded. Now it polls, and re-checks the
+  // moment the tab comes back — which is when someone actually looks.
   useEffect(() => {
     let alive = true;
-    fetch("/api/spotify")
-      .then((res) => res.json())
-      .then((data: SpotifyTrack | { error: string }) => {
-        if (!alive) return;
-        if (data && !("error" in data)) setTrack(data as SpotifyTrack);
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
+
+    const load = () => {
+      if (document.visibilityState === "hidden") return;
+
+      fetch("/api/spotify")
+        .then((res) => res.json())
+        .then((data: SpotifyTrack | { error: string }) => {
+          if (!alive) return;
+          // A failed poll keeps the last known track rather than blanking the
+          // card, so a blip never looks like "nothing playing".
+          if (data && !("error" in data)) setTrack(data as SpotifyTrack);
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (alive) setLoading(false);
+        });
+    };
+
+    load();
+    const id = setInterval(load, 20_000);
+    document.addEventListener("visibilitychange", load);
+    window.addEventListener("focus", load);
+
     return () => {
       alive = false;
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", load);
+      window.removeEventListener("focus", load);
     };
   }, []);
+
+  const live = track?.playing === true;
+
+  // A track starting takes the card over — that is the whole point of having
+  // it — and the auto-flip is suspended while it plays so it stays on screen.
+  useEffect(() => {
+    if (live) setFlipped(true);
+  }, [live, track?.name]);
 
   // The card turns over on its own until the visitor takes control, and
   // holds still while the pointer is on it.
   useEffect(() => {
+    if (live) return;
     if (!autoFlip || hovered) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const id = setInterval(() => setFlipped((value) => !value), 6500);
     return () => clearInterval(id);
-  }, [autoFlip, hovered]);
+  }, [autoFlip, hovered, live]);
 
   const flip = () => {
     setAutoFlip(false);
     setFlipped((value) => !value);
   };
 
-  const playing = hovered && flipped;
+  const spinning = hovered && flipped;
 
   return (
     <Card
@@ -496,12 +526,15 @@ function FlipCard({ revealDelay }: { revealDelay: number }) {
                 <div className="flex items-center gap-1.5">
                   <SpotifyBadge />
                   <span className="text-[11px] uppercase tracking-[0.2em] text-white/70">
-                    Recently Played
+                    {track.playing ? "Now Playing" : "Recently Played"}
                   </span>
+                  {track.playing && (
+                    <span className="size-1.5 animate-pulse rounded-full bg-[#1DB954]" />
+                  )}
                 </div>
 
                 <div className="flex flex-1 items-center justify-center">
-                  <AlbumArt albumArt={track.albumArt} isSpinning={playing} />
+                  <AlbumArt albumArt={track.albumArt} isSpinning={spinning} />
                 </div>
 
                 <div className="flex items-end justify-between gap-3">
@@ -513,7 +546,7 @@ function FlipCard({ revealDelay }: { revealDelay: number }) {
                       {track.artist}
                     </p>
                     <p className="mt-0.5 text-[10px] text-white/50">
-                      {timeAgo(track.playedAt)}
+                      {track.playing ? "now" : timeAgo(track.playedAt)}
                     </p>
                   </div>
                   <a
