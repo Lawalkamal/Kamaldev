@@ -128,7 +128,13 @@ export default function Contact() {
             </div>
 
             <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-              <h3 className="font-semibold mb-2">Currently Available</h3>
+              <h3 className="font-semibold mb-2 flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="size-2 shrink-0 animate-pulse rounded-full bg-emerald-500"
+                />
+                Currently Available
+              </h3>
               <p className="text-sm text-muted-foreground">
                 I'm actively looking for new opportunities and exciting projects. 
                 Let's create something amazing together!

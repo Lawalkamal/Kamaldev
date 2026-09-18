@@ -79,7 +79,14 @@ export default function Hero() {
           {/* Left Content */}
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <div className="inline-block">
-              <span className="px-4 py-2 bg-secondary rounded-full text-sm font-medium">
+              {/* Same live dot as the "Latest push" badge in the
+                  "While You're Here" card, so availability reads
+                  identically everywhere it appears. */}
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-secondary rounded-full text-sm font-medium">
+                <span
+                  aria-hidden
+                  className="size-2 shrink-0 animate-pulse rounded-full bg-emerald-500"
+                />
                 Available for freelance
               </span>
             </div>
