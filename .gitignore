@@ -44,3 +44,6 @@ src.zip
 
 # Local sqlite files from `TURSO_DATABASE_URL=file:.data/...`
 .data/
+
+# Freebuff workspace internals (previews, run docs, sandbox files)
+.freebuff/
