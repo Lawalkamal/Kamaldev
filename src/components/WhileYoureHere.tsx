@@ -426,7 +426,8 @@ function FlipCard({ revealDelay }: { revealDelay: number }) {
     setFlipped((value) => !value);
   };
 
-  const spinning = hovered && flipped;
+  // Spins until the pointer rests on the card, like a needle being lowered.
+  const spinning = !hovered;
 
   return (
     <Card

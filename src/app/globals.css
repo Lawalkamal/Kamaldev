@@ -432,7 +432,7 @@ html[data-preloader="skip"] .preloader {
   transform: rotateY(180deg);
 }
 
-/* Vinyl record: idle until the pointer is on the Spotify face. */
+/* Vinyl record: turns until the pointer rests on the Spotify face. */
 @keyframes vinyl-spin {
   to {
     transform: rotate(360deg);
