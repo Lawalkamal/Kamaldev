@@ -26,9 +26,13 @@ export default function ScrollProgress() {
     const ease = reduced ? 1 : EASE;
 
     let frame = 0;
-    let width = track.clientWidth;
     let current = 0;
     let target = 0;
+    // Cached length of the scrollable page. Reading `scrollHeight` inside the
+    // scroll handler forced a layout on every scroll event; the page only
+    // changes height when content loads or the window resizes, and the
+    // ResizeObserver below catches both.
+    let max = 0;
 
     const paint = () => {
       fill.style.transform = `scaleX(${current})`;
@@ -48,23 +52,34 @@ export default function ScrollProgress() {
       frame = requestAnimationFrame(tick);
     };
 
+    const measure = () => {
+      max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    };
+
     const readScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
       target = max > 0 ? Math.min(Math.max(window.scrollY / max, 0), 1) : 0;
       if (frame === 0) frame = requestAnimationFrame(tick);
     };
 
     const onResize = () => {
-      width = track.clientWidth;
+      measure();
       readScroll();
     };
 
+    measure();
     readScroll();
     window.addEventListener("scroll", readScroll, { passive: true });
     window.addEventListener("resize", onResize, { passive: true });
 
+    // Lazy images landing in the page change its height; re-measure only when
+    // that actually happens rather than on every scroll event.
+    const observer =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(document.body);
+
     return () => {
       if (frame) cancelAnimationFrame(frame);
+      observer?.disconnect();
       window.removeEventListener("scroll", readScroll);
       window.removeEventListener("resize", onResize);
     };

@@ -24,6 +24,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light dark" />
+        {/* The faces (Inter, Syne Tactile) arrive via an @import inside
+            globals.css, so the connection to the font CDN is opened as early
+            as the document parses instead of after the stylesheet lands. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         {/* The scroll reveal in the "While You're Here" section is a JS
             enhancement — without it those cards would stay hidden. */}
         <noscript>

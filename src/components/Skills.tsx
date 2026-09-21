@@ -1,7 +1,10 @@
 "use client"
 
+import { useState } from 'react'
+import type { AnimationEvent, KeyboardEvent } from 'react'
 import { Code2, Smartphone, Database, GitBranch, Palette, Zap, Layout, Server, Bot, BotMessageSquare } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 const skills = [
   { name: 'HTML & CSS', icon: Code2, color: 'text-orange-500' },
@@ -17,7 +20,39 @@ const skills = [
   { name: 'Telegram Bot Development', icon: BotMessageSquare, color: 'text-blue-500' }
 ]
 
+const alsoExperienced = ['PostgreSQL', 'Figma', 'Node', 'REST']
+
 export default function Skills() {
+  // A list rather than a single key: popping one card while another is still
+  // wobbling must not cut the first one's animation short. Each key is
+  // dropped when its own `skill-pop` animation ends, and the class going away
+  // is what returns the card to rest — the layout is never altered.
+  const [popping, setPopping] = useState<string[]>([])
+
+  const pop = (key: string) =>
+    setPopping((prev) => (prev.includes(key) ? prev : [...prev, key]))
+
+  const settle =
+    (key: string) => (event: AnimationEvent<HTMLElement>) => {
+      if (event.animationName !== 'skill-pop') return
+      setPopping((prev) => prev.filter((item) => item !== key))
+    }
+
+  const popProps = (key: string) => ({
+    role: 'button' as const,
+    tabIndex: 0,
+    'aria-label': `${key} — click to play`,
+    onClick: () => pop(key),
+    onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
+      // Space would otherwise scroll the page before the pop is seen.
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        pop(key)
+      }
+    },
+    onAnimationEnd: settle(key)
+  })
+
   return (
     <section id="skills" className="py-32 relative">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -35,21 +70,35 @@ export default function Skills() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {skills.map((skill, index) => (
-            <Card
+            /* The entrance animation lives on the wrapper and the pop on the
+               card, so the stagger's inline `animation-delay` cannot leak into
+               the click animation and hold it back. */
+            <div
               key={skill.name}
-              className="group relative p-8 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border-border/50 animate-in fade-in slide-in-from-bottom-4"
+              className="animate-in fade-in slide-in-from-bottom-4"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="flex flex-col items-center gap-4 text-center">
-                <div className={`p-4 rounded-xl bg-secondary group-hover:bg-secondary/80 transition-colors ${skill.color}`}>
-                  <skill.icon className="w-8 h-8" strokeWidth={1.5} />
+              <Card
+                {...popProps(skill.name)}
+                className={cn(
+                  'group relative h-full p-8 cursor-pointer border-border/50',
+                  'transition-[transform,box-shadow,border-color] duration-300',
+                  'hover:shadow-xl hover:-translate-y-2',
+                  'outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                  popping.includes(skill.name) && 'skill-pop',
+                )}
+              >
+                <div className="flex flex-col items-center gap-4 text-center">
+                  <div className={cn('skill-icon p-4 rounded-xl bg-secondary group-hover:bg-secondary/80 transition-colors', skill.color)}>
+                    <skill.icon className="w-8 h-8" strokeWidth={1.5} />
+                  </div>
+                  <h3 className="font-semibold text-sm">{skill.name}</h3>
                 </div>
-                <h3 className="font-semibold text-sm">{skill.name}</h3>
-              </div>
-              
-              {/* Glow effect on hover */}
-              <div className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-xl ${skill.color} bg-current -z-10`} />
-            </Card>
+
+                {/* Glow effect on hover */}
+                <div className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-xl ${skill.color} bg-current -z-10`} />
+              </Card>
+            </div>
           ))}
         </div>
 
@@ -57,10 +106,16 @@ export default function Skills() {
         <div className="mt-16 text-center">
           <p className="text-muted-foreground text-sm mb-4">Also experienced with</p>
           <div className="flex flex-wrap justify-center gap-3">
-            {[ 'PostgreSQL',  'Figma','Node', 'REST'].map((tool) => (
+            {alsoExperienced.map((tool) => (
               <span
                 key={tool}
-                className="px-4 py-2 bg-secondary rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors"
+                {...popProps(tool)}
+                className={cn(
+                  'inline-block px-4 py-2 bg-secondary rounded-full text-sm font-medium cursor-pointer',
+                  'transition-colors hover:bg-secondary/80',
+                  'outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                  popping.includes(tool) && 'skill-pop',
+                )}
               >
                 {tool}
               </span>

@@ -28,7 +28,7 @@ export default function Projects() {
           {projects.map((project, index) => (
             <Card
               key={project.title}
-              className="group overflow-hidden hover:shadow-2xl transition-all duration-500 p-0 border-border/50 animate-in fade-in slide-in-from-bottom-6"
+              className="group overflow-hidden hover:shadow-2xl transition-[transform,box-shadow] duration-500 p-0 border-border/50 animate-in fade-in slide-in-from-bottom-6"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="relative aspect-video overflow-hidden">
@@ -38,7 +38,11 @@ export default function Projects() {
                   width={800}
                   height={600}
                   sizes="(min-width: 1280px) 608px, (min-width: 768px) 46vw, 92vw"
-                  className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700"
+                  // `decoding="async"` keeps the four lazy thumbnails off the
+                  // main thread — they were decoding exactly as this section
+                  // scrolled into view, which is where the stutter came from.
+                  decoding="async"
+                  className="object-cover w-full h-full transform-gpu will-change-transform group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 

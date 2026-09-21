@@ -15,12 +15,18 @@ export default function Hero() {
 
     // Leave the parallax out entirely when it cannot be paid for: reduced
     // motion, touch devices, or an unhurried connection.
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const coarse = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const coarse = window.matchMedia(
+      "(hover: none) and (pointer: coarse)",
+    ).matches;
     if (reduced || coarse) return;
 
     // Cached once here instead of queried on every pointer move.
-    const shapes = Array.from(hero.querySelectorAll<HTMLElement>(".floating-shape"));
+    const shapes = Array.from(
+      hero.querySelectorAll<HTMLElement>(".floating-shape"),
+    );
     if (!shapes.length) return;
 
     let frame = 0;
@@ -82,16 +88,19 @@ export default function Hero() {
               {/* Same live dot as the "Latest push" badge in the
                   "While You're Here" card, so availability reads
                   identically everywhere it appears. */}
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-secondary rounded-full text-sm font-medium">
+              <span className="inline-flex items-center gap-2 px-2 py-2 bg-secondary rounded-full text-sm font-medium">
+                Available for freelance
                 <span
                   aria-hidden
                   className="size-2 shrink-0 animate-pulse rounded-full bg-emerald-500"
                 />
-                Available for freelance
               </span>
             </div>
 
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
+            {/* Syne Tactile is the display face for the headline only — a
+                single-weight, hand-drawn face, so it stays at font-normal
+                (synthesised bold would blur its edges). */}
+            <h1 className="font-tactile text-5xl md:text-6xl lg:text-7xl font-normal leading-tight tracking-tight">
               Web Developer,
               <br />
               <span className="text-muted-foreground"> UI Designer</span>
