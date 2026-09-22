@@ -98,16 +98,16 @@ export default function Hero() {
             </div>
 
             {/* Syne Tactile is the display face for the headline only — a
-                single-weight, hand-drawn face, so it stays at font-normal
-                (synthesised bold would blur its edges). */}
-            <h1 className="font-tactile text-5xl md:text-6xl lg:text-7xl font-normal leading-tight tracking-tight">
+                single-weight, hand-drawn face, so it carries no bold class;
+                `.hero-display` thickens the strokes with a text-stroke. */}
+            <h1 className="hero-display font-tactile text-5xl md:text-6xl lg:text-7xl font-normal leading-tight tracking-tight">
               Web Developer,
               <br />
               <span className="text-muted-foreground"> UI Designer</span>
               <span className="text-foreground"> & AI Agent Engineer</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
+            <p className="subtle-weight text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
               I craft exceptional digital experiences through modern web
               development, clean code architecture, and pixel-perfect UI design.
             </p>

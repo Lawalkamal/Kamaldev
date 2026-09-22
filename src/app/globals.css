@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne+Tactile&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100;200;300;400;500;600;700;800&family=Syne+Tactile&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -7,12 +7,18 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Inter', var(--font-geist-sans);
+  --font-sans: 'Sora', var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   /* Display face for the hero headline. Syne Tactile ships a single 400
-     weight, so anything set in it must not ask for bold — the browser would
-     synthesise it and muddy the drawn edges. */
+     weight — see `.hero-display` below for how it is thickened without
+     asking the browser to synthesise a bold and muddy the drawn edges.
+
+     The body now uses Sora instead of Inter; every weight from 100 up to 800
+     is on file, so small labels can be made slightly bolder without rendering
+     a full bold. */
   --font-tactile: 'Syne Tactile', system-ui, sans-serif;
+  --font-sora: 'Sora', system-ui, sans-serif;
+  --font-sora-weight-subtle: 500;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -105,7 +111,7 @@
   
   body {
     @apply bg-background text-foreground font-sans;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Sora', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   
   body::before {
@@ -154,6 +160,34 @@
 
 .animate-scroll {
   animation: scroll 1.5s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/* Display type: thickening Syne Tactile                               */
+/* ------------------------------------------------------------------ */
+
+/* Syne Tactile has no bold cut, so `font-bold` would only make the browser
+   synthesise one — which smears a hand-drawn face. A hairline text-stroke
+   instead grows the glyphs evenly in every direction while leaving the
+   drawn edges sharp, and it reads as "a bit bolder" rather than heavy.
+
+   `currentColor` is resolved per element, so the two-tone headline keeps
+   each span's own colour. The width is in `em`, so the weight stays
+   proportional as the headline steps through its breakpoints instead of
+   looking heavier on mobile than it does on the desktop.
+
+   One number to tune: raise it to go heavier, lower it to soften. 0.02em
+   is roughly a tenth of the weight a synthesised bold would add. */
+.hero-display,
+.hero-display * {
+  font-synthesis-weight: none;
+  -webkit-text-stroke: 0.02em currentColor;
+}
+
+/* Subtle, slightly-bolder than regular for things like the hero subtitle,
+   section eyebrows, and readme blocks. Actual weight is 500, not 600/700. */
+.subtle-weight {
+  font-weight: var(--font-sora-weight-subtle);
 }
 
 /* ------------------------------------------------------------------ */
