@@ -42,11 +42,21 @@ export default function Projects() {
                   // main thread — they were decoding exactly as this section
                   // scrolled into view, which is where the stutter came from.
                   decoding="async"
-                  className="object-cover w-full h-full transform-gpu will-change-transform group-hover:scale-105 transition-transform duration-700"
+                  // No `will-change`/`transform-gpu` here. They promote every
+                  // thumbnail to its own GPU layer for the life of the page to
+                  // smooth a hover-only scale — and this grid is heading for a
+                  // couple of dozen cards. The browser promotes on transition
+                  // start anyway, so the hint buys nothing but memory.
+                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                {/* Action buttons on hover */}
+                {/* Action buttons on hover. This overlay lives in the tree at
+                    all times, so anything expensive inside it is paid for on
+                    every frame it crosses the viewport. That is why the Code
+                    button has no `backdrop-blur`: it makes the compositor
+                    re-snapshot and blur the page behind it continuously, and
+                    behind a 90%-opaque background the blur was never visible. */}
                 <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <Button
                     size="sm"
@@ -60,7 +70,7 @@ export default function Projects() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="rounded-lg shadow-lg bg-card/90 backdrop-blur-sm"
+                    className="rounded-lg shadow-lg bg-card/90"
                     onClick={() => window.open(project.github, "_blank")}
                     disabled={project.github === "#"}
                   >

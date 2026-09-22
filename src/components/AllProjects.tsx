@@ -104,11 +104,18 @@ export default function AllProjects() {
                       // Decoded off the main thread, so a grid of thumbnails
                       // does not stutter while it scrolls in.
                       decoding="async"
-                      className="object-cover w-full h-full transform-gpu will-change-transform group-hover:scale-105 transition-transform duration-700"
+                      // No `will-change`/`transform-gpu`: a grid of thumbnails
+                      // promoted to their own GPU layers for the life of the
+                      // page is a heavy hint for a hover-only scale. The
+                      // browser promotes on transition start by itself.
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    <span className="absolute top-4 left-4 px-3 py-1 bg-card/90 backdrop-blur-sm rounded-full text-xs font-medium border border-border">
+                    {/* Sits on the thumbnail for the whole page life, so no
+                        `backdrop-blur` — a 90%-opaque plate never showed it,
+                        and it costs a backdrop snapshot per frame. */}
+                    <span className="absolute top-4 left-4 px-3 py-1 bg-card/90 rounded-full text-xs font-medium border border-border">
                       {project.category}
                     </span>
 
@@ -126,7 +133,7 @@ export default function AllProjects() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="rounded-lg shadow-lg bg-card/90 backdrop-blur-sm"
+                        className="rounded-lg shadow-lg bg-card/90"
                         onClick={() => window.open(project.github, "_blank")}
                         disabled={project.github === "#"}
                       >
