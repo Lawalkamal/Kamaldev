@@ -35,25 +35,8 @@ function isCoarsePointer() {
   return canUseDom() && window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 }
 
-/* `scrollHeight` forces a layout, and `onWheel` runs inside the scroll path
-   behind `preventDefault()` — so reading it on every wheel tick pays for a
-   layout the browser would otherwise do once. The page is only a different
-   length when content lands or the window resizes, so measure on those and
-   serve everything else from the cache. Reading a clean layout is cheap;
-   the problem is reading it while something else has just dirtied it. */
-let cachedMax: number | null = null;
-let sizeObserver: ResizeObserver | null = null;
-
-function measureMax() {
-  cachedMax = Math.max(
-    0,
-    document.documentElement.scrollHeight - window.innerHeight
-  );
-  return cachedMax;
-}
-
 function maxScroll() {
-  return cachedMax ?? measureMax();
+  return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -178,7 +161,7 @@ function onNativeScroll() {
 function onResize() {
   if (!active) return;
 
-  const max = measureMax();
+  const max = maxScroll();
   target = clamp(target, 0, max);
   current = clamp(current, 0, max);
 }
@@ -199,14 +182,6 @@ export function initSmoothScroll(): () => void {
 
     active = true;
     current = target = window.scrollY;
-    measureMax();
-
-    // Lazy images and webfonts landing in the page change its height without
-    // a window resize; catch those here rather than in the wheel handler.
-    if (typeof ResizeObserver !== "undefined") {
-      sizeObserver = new ResizeObserver(measureMax);
-      sizeObserver.observe(document.body);
-    }
 
     // Our own scrollTo calls must not be re-animated by CSS.
     document.documentElement.style.scrollBehavior = "auto";
@@ -223,9 +198,6 @@ export function initSmoothScroll(): () => void {
 
     stop();
     active = false;
-    sizeObserver?.disconnect();
-    sizeObserver = null;
-    cachedMax = null;
     document.documentElement.style.scrollBehavior = "";
     window.removeEventListener("wheel", onWheel);
     window.removeEventListener("keydown", onKeyDown);
@@ -286,9 +258,6 @@ export function lockScroll(nextLocked: boolean) {
   if (nextLocked) {
     stop();
   } else {
-    // `overflow: hidden` was on <html> while locked; re-measure before
-    // trusting the cached page length again.
-    measureMax();
     current = target = window.scrollY;
   }
 }
