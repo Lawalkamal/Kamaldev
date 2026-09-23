@@ -28,7 +28,7 @@ export default function Projects() {
           {projects.map((project, index) => (
             <Card
               key={project.title}
-              className="group overflow-hidden hover:shadow-2xl transition-[transform,box-shadow] duration-500 p-0 border-border/50 animate-in fade-in slide-in-from-bottom-6"
+              className="group overflow-hidden hover:shadow-xl transition-[transform,box-shadow] duration-300 p-0 border-border/50 animate-in fade-in slide-in-from-bottom-6"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="relative aspect-video overflow-hidden">
@@ -60,7 +60,7 @@ export default function Projects() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="rounded-lg shadow-lg bg-card/90 backdrop-blur-sm"
+                    className="rounded-lg shadow-lg bg-card/90"
                     onClick={() => window.open(project.github, "_blank")}
                     disabled={project.github === "#"}
                   >

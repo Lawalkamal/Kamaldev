@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { useSectionNav } from '@/hooks/use-section-nav'
 import { scrollToTop } from '@/lib/smooth-scroll'
 import ScrollProgress from '@/components/ScrollProgress'
+import StarlightHeadliner from '@/components/StarlightHeadliner'
 import { useTheme } from 'next-themes'
 import { cn } from '@/lib/utils'
 
@@ -22,7 +23,7 @@ export default function Navigation() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [active, setActive] = useState<string | null>(null)
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const scrolledRef = useRef(false)
 
   useEffect(() => {
@@ -112,15 +113,24 @@ export default function Navigation() {
       <nav className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
         <div
           className={cn(
-            'pointer-events-auto flex w-full max-w-fit flex-col rounded-full border backdrop-blur-xl',
+            'pointer-events-auto relative flex w-full max-w-fit flex-col overflow-hidden rounded-full border backdrop-blur-xl dark:backdrop-blur-none',
             'transition-[background-color,border-color,box-shadow,border-radius] duration-300 ease-out',
+            // In dark mode the island is the starlight ceiling, so it sits
+            // darker and far more opaque than the light glass: the stars
+            // need a night to be seen against, and a blurred page behind
+            // them would wash the field out. At this opacity there is
+            // nothing left to see through it, so the backdrop blur is
+            // dropped in dark mode too — that is a fixed element re-blurring
+            // its backdrop on every scroll frame, for no visible result.
             scrolled
-              ? 'border-border/70 bg-background/75 shadow-[0_10px_34px_-16px_rgba(0,0,0,0.3)]'
-              : 'border-border/50 bg-background/55 shadow-[0_8px_28px_-18px_rgba(0,0,0,0.2)]',
+              ? 'border-border/70 bg-background/75 shadow-[0_10px_34px_-16px_rgba(0,0,0,0.3)] dark:border-white/[0.09] dark:bg-[#06060d]/94'
+              : 'border-border/50 bg-background/55 shadow-[0_8px_28px_-18px_rgba(0,0,0,0.2)] dark:border-white/[0.07] dark:bg-[#06060d]/88',
             mobileMenuOpen && 'max-w-full rounded-3xl',
           )}
         >
-          <div className="flex items-center gap-1 p-2">
+          <StarlightHeadliner />
+
+          <div className="relative flex items-center gap-1 p-2">
             {/* Logo */}
             <Link
               href="/"
@@ -167,11 +177,15 @@ export default function Navigation() {
                 className={iconButton}
                 aria-label="Toggle theme"
               >
-                {resolvedTheme === 'dark' ? (
-                  <Sun className="size-[18px]" />
-                ) : (
-                  <Moon className="size-[18px]" />
-                )}
+                {/* Both icons are rendered and CSS picks one off the `.dark`
+                    class. Branching on `resolvedTheme` at render time meant
+                    the server always sent the moon and a dark-mode visitor's
+                    first client render produced the sun — a hydration
+                    mismatch that made React throw away and rebuild this
+                    subtree on every load. The class is set before paint, so
+                    the right icon still shows immediately either way. */}
+                <Moon className="size-[18px] dark:hidden" />
+                <Sun className="hidden size-[18px] dark:block" />
               </button>
 
               <Button
@@ -200,7 +214,7 @@ export default function Navigation() {
           {/* Mobile Menu — the island itself unfolds, so there is no second
               surface appearing out of nowhere. */}
           {mobileMenuOpen && (
-            <div className="border-t border-border/60 px-3 pb-3 pt-2 md:hidden">
+            <div className="relative border-t border-border/60 px-3 pb-3 pt-2 md:hidden">
               <div className="flex flex-col gap-0.5">
                 {NAV_LINKS.map((link) => (
                   <button

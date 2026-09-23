@@ -113,24 +113,14 @@
     @apply bg-background text-foreground font-sans;
     font-family: 'Sora', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
-  
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 1;
-  }
-  
-  .dark body::before {
-    opacity: 0.5;
-  }
 }
+
+/* NOTE: a previous full-viewport SVG-turbulence "noise" overlay lived here
+   (body::before, fixed, z-index 9999). It forced the compositor to blend an
+   extra full-screen layer over every single scroll/paint frame — measurable
+   cost on a throttled CPU for a texture visible at only 1.5–3% opacity.
+   Removed for scroll performance; the data-URI is in git history if it is
+   ever wanted back. */
 
 /* Custom Animations */
 @keyframes float {
@@ -552,6 +542,158 @@ html[data-preloader="skip"] .preloader {
 
 .animate-flash {
   animation: flash-out 600ms ease-out forwards;
+}
+
+/* ------------------------------------------------------------------ */
+/* Starlight headliner (dark mode only)                                */
+/* ------------------------------------------------------------------ */
+
+/* The Rolls-Royce ceiling, for the nav island. The container is hidden in
+   light mode (`hidden dark:block` in the component), so the whole effect
+   costs nothing while the site is on its light default.
+
+   Cost design: the stars are static `radial-gradient` layers — the entire
+   field is one paint, with no node per star and no per-frame work. Only
+   four small elements animate, and only `opacity`/`transform`, which the
+   compositor can run without waking the main thread. The site scrolls
+   through a JS loop, so anything on the main thread competes with scroll. */
+
+.starlight {
+  /* Fade the field toward the pill's rounded ends so stars never look
+     sliced off by the border radius. */
+  -webkit-mask-image: radial-gradient(
+    135% 320% at 50% 50%,
+    #000 56%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    135% 320% at 50% 50%,
+    #000 56%,
+    transparent 100%
+  );
+}
+
+/* The sky the stars sit in: near-black with two faint nebulae and a low
+   haze at the bottom, so the points read as depth rather than dots. */
+.starlight-nebula {
+  background:
+    radial-gradient(
+      60% 190% at 12% 0%,
+      rgba(88, 128, 255, 0.1),
+      transparent 70%
+    ),
+    radial-gradient(
+      52% 200% at 78% 112%,
+      rgba(126, 96, 255, 0.085),
+      transparent 72%
+    ),
+    linear-gradient(to top, rgba(255, 255, 255, 0.045), transparent 45%);
+}
+
+.starlight-layer {
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  /* Opacity-only animation, so this runs on the compositor. Sizes are tiny
+     (the island is a few hundred pixels wide), so one layer each is cheap. */
+  will-change: opacity;
+  animation: starlight-twinkle 9s ease-in-out infinite;
+}
+
+.starlight-mid {
+  animation-duration: 13s;
+  animation-delay: -4s;
+}
+
+.starlight-near {
+  animation-duration: 19s;
+  animation-delay: -8s;
+}
+
+/* Uneven steps on purpose: three layers at three durations against a
+   keyframe that never repeats its own rhythm is what makes individual
+   stars seem to twinkle on their own. A smooth two-stop pulse reads as
+   the whole sky flickering. */
+@keyframes starlight-twinkle {
+  0% {
+    opacity: 0.62;
+  }
+  13% {
+    opacity: 1;
+  }
+  27% {
+    opacity: 0.55;
+  }
+  38% {
+    opacity: 0.92;
+  }
+  52% {
+    opacity: 0.68;
+  }
+  64% {
+    opacity: 1;
+  }
+  77% {
+    opacity: 0.5;
+  }
+  88% {
+    opacity: 0.86;
+  }
+  100% {
+    opacity: 0.62;
+  }
+}
+
+/* Hairline along the front edge, catching light like the trim panel. */
+.starlight-sheen {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.24),
+    transparent
+  );
+}
+
+/* The meteor. The trail is a gradient with a bright head so it reads as
+   direction of travel; the wrapper carries the movement, animated by
+   percentage of the island's own width so it crosses any pill size. */
+.starlight-trail {
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(214, 228, 255, 0.5),
+    rgba(255, 255, 255, 0.95)
+  );
+  box-shadow: 0 0 6px rgba(214, 228, 255, 0.55);
+}
+
+.starlight-shoot {
+  will-change: transform, opacity;
+  animation: starlight-shoot 17s cubic-bezier(0.3, 0, 0.7, 1) 5s infinite;
+}
+
+/* Idle for most of the cycle, then a quick sweep and gone. */
+@keyframes starlight-shoot {
+  0%,
+  74% {
+    opacity: 0;
+    transform: translate3d(-35%, 0, 0);
+  }
+  75% {
+    opacity: 0.85;
+  }
+  78% {
+    opacity: 0.85;
+    transform: translate3d(55%, 6%, 0);
+  }
+  82% {
+    opacity: 0;
+    transform: translate3d(120%, 12%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(120%, 12%, 0);
+  }
 }
 
 /* ------------------------------------------------------------------ */

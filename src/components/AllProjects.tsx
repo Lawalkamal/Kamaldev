@@ -91,7 +91,7 @@ export default function AllProjects() {
               {filteredProjects.map((project, index) => (
                 <Card
                   key={project.title}
-                  className="group overflow-hidden hover:shadow-2xl transition-[transform,box-shadow] duration-500 p-0 border-border/50 animate-in fade-in slide-in-from-bottom-6"
+                  className="group overflow-hidden hover:shadow-xl transition-[transform,box-shadow] duration-300 p-0 border-border/50 animate-in fade-in slide-in-from-bottom-6"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="relative aspect-video overflow-hidden">
@@ -108,7 +108,7 @@ export default function AllProjects() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    <span className="absolute top-4 left-4 px-3 py-1 bg-card/90 backdrop-blur-sm rounded-full text-xs font-medium border border-border">
+                    <span className="absolute top-4 left-4 px-3 py-1 bg-card/90 rounded-full text-xs font-medium border border-border">
                       {project.category}
                     </span>
 
@@ -126,7 +126,7 @@ export default function AllProjects() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="rounded-lg shadow-lg bg-card/90 backdrop-blur-sm"
+                        className="rounded-lg shadow-lg bg-card/90"
                         onClick={() => window.open(project.github, "_blank")}
                         disabled={project.github === "#"}
                       >

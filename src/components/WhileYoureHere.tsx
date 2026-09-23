@@ -381,7 +381,20 @@ function FlipCard({ revealDelay }: { revealDelay: number }) {
           if (!alive) return;
           // A failed poll keeps the last known track rather than blanking the
           // card, so a blip never looks like "nothing playing".
-          if (data && !("error" in data)) setTrack(data as SpotifyTrack);
+          if (!data || "error" in data) return;
+          const next = data as SpotifyTrack;
+          // Same track as before: keep the previous object so React bails out
+          // of the re-render — a poll every 20s must not cost a repaint of
+          // the card (and its blurred album-art layer) when nothing changed.
+          setTrack((prev) =>
+            prev &&
+            prev.name === next.name &&
+            prev.artist === next.artist &&
+            prev.playedAt === next.playedAt &&
+            prev.playing === next.playing
+              ? prev
+              : next,
+          );
         })
         .catch(() => {})
         .finally(() => {
@@ -426,8 +439,9 @@ function FlipCard({ revealDelay }: { revealDelay: number }) {
     setFlipped((value) => !value);
   };
 
-  // Spins until the pointer rests on the card, like a needle being lowered.
-  const spinning = !hovered;
+  // Spins while the Spotify face is showing and the pointer is away — a hidden
+  // face would still cost a 28px-wide GPU layer animating on every frame.
+  const spinning = !hovered && flipped;
 
   return (
     <Card
