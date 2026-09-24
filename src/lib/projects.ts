@@ -37,7 +37,7 @@ export const projects: Project[] = [
     link: "#",
     github: "#",
     category: "Web Development",
-    featured: true,
+    featured: false,
   },
   {
     title: "FindIt",
@@ -61,7 +61,7 @@ export const projects: Project[] = [
     link: "https://www.figma.com/proto/LqWAN0siti31qokC1ySk4o/Bicycle-Product-Page?node-id=68-41&p=f&t=WbtUYXVufRtpmtr8-0&scaling=scale-down&content-scaling=fixed&page-id=62%3A5",
     github: "#",
     category: "UI Design",
-    featured: true,
+    featured: false,
   },
   {
     title: "Lady-G Furniture and Interior",
@@ -98,6 +98,30 @@ export const projects: Project[] = [
     github: "#",
     category: "AI Integration",
     featured: false,
+  },
+  {
+    title: "GRU Coin",
+    description:
+      "A cryptocurrency project with a focus on community engagement and innovative tokenomics.",
+    image:
+      "https://res.cloudinary.com/dxhjlkdx0/image/upload/v1790256457/vtda54wk11zutft686te.png",
+    tags: ["Cryptocurrency", "Blockchain", "Web3"],
+    link: "#",
+    github: "#",
+    category: "Web Development",
+    featured: true,
+  },
+  {
+    title: "REDLINE Autos",
+    description:
+      "A modern automotive website design showcasing the latest models and services.",
+    image:
+      "https://res.cloudinary.com/dxhjlkdx0/image/upload/v1790256458/ecje5j8wsxinxe2tmejl.png",
+    tags: ["Automotive", "Web Design", "Responsive Design"],
+    link: "#",
+    github: "#",
+    category: "Web Development",
+    featured: true,
   },
 ];
 
