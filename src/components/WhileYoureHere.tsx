@@ -439,9 +439,10 @@ function FlipCard({ revealDelay }: { revealDelay: number }) {
     setFlipped((value) => !value);
   };
 
-  // Spins while the Spotify face is showing and the pointer is away — a hidden
-  // face would still cost a 28px-wide GPU layer animating on every frame.
-  const spinning = !hovered && flipped;
+  // Spins only while a track is actually playing, the Spotify face is showing
+  // and the pointer is away — a "Recently Played" record has nothing to spin
+  // for, and a hidden face would still cost a GPU layer animating every frame.
+  const spinning = live && !hovered && flipped;
 
   return (
     <Card
