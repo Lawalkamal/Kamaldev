@@ -83,6 +83,21 @@ export default function Navigation() {
     }
   }, [mobileMenuOpen])
 
+  // The island's corners snap 9999px→24px while the menu is open, and hold
+  // 24px for this long after closing so the collapse never shows a tall
+  // pill-radius panel (the same oval the opening used to flash). 350ms is
+  // one frame past the unfold's 300ms; the radius swap is invisible at the
+  // closed height, where the two shapes differ by ~3px.
+  const [cornersRelaxed, setCornersRelaxed] = useState(false)
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      setCornersRelaxed(true)
+      return
+    }
+    const id = setTimeout(() => setCornersRelaxed(false), 350)
+    return () => clearTimeout(id)
+  }, [mobileMenuOpen])
+
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark')
   }
@@ -114,7 +129,13 @@ export default function Navigation() {
         <div
           className={cn(
             'pointer-events-auto relative flex w-full max-w-fit flex-col overflow-hidden rounded-full border backdrop-blur-xl dark:backdrop-blur-none',
-            'transition-[background-color,border-color,box-shadow,border-radius] duration-300 ease-out',
+            // No border-radius here on purpose: animating the radius while the
+            // menu unfolds turned the opening island into an oval (a pill
+            // radius on a tallening panel rounds ~50% of its height). Instead
+            // the corners snap to 24px the moment the menu opens — invisible
+            // at the closed height, where the two radii differ by ~3px — and
+            // the unfold is then a plain rectangle stretching open.
+            'transition-[background-color,border-color,box-shadow] duration-300 ease-out',
             // In dark mode the island is the starlight ceiling, so it sits
             // darker and far more opaque than the light glass: the stars
             // need a night to be seen against, and a blurred page behind
@@ -125,7 +146,8 @@ export default function Navigation() {
             scrolled
               ? 'border-border/70 bg-background/75 shadow-[0_10px_34px_-16px_rgba(0,0,0,0.3)] dark:border-white/[0.09] dark:bg-[#06060d]/94'
               : 'border-border/50 bg-background/55 shadow-[0_8px_28px_-18px_rgba(0,0,0,0.2)] dark:border-white/[0.07] dark:bg-[#06060d]/88',
-            mobileMenuOpen && 'max-w-full rounded-3xl',
+            mobileMenuOpen && 'max-w-full',
+            cornersRelaxed && 'rounded-3xl',
           )}
         >
           <StarlightHeadliner />
@@ -212,33 +234,54 @@ export default function Navigation() {
           </div>
 
           {/* Mobile Menu — the island itself unfolds, so there is no second
-              surface appearing out of nowhere. */}
-          {mobileMenuOpen && (
-            <div className="relative border-t border-border/60 px-3 pb-3 pt-2 md:hidden">
-              <div className="flex flex-col gap-0.5">
-                {NAV_LINKS.map((link) => (
-                  <button
-                    key={link.id}
-                    onClick={() => scrollToSection(link.id)}
-                    className={cn(
-                      'rounded-2xl px-4 py-2.5 text-left text-sm font-medium transition-colors',
-                      active === link.id
-                        ? 'bg-secondary text-foreground'
-                        : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground',
-                    )}
-                  >
-                    {link.label}
-                  </button>
-                ))}
-              </div>
-              <Button
-                onClick={() => scrollToSection('contact')}
-                className="mt-3 w-full rounded-2xl"
+              surface appearing out of nowhere. The wrapper stays mounted: a
+              0fr→1fr grid track animates the island's height, so the panel
+              stretches open as a rounded rectangle — its corners are already
+              at 24px when the first frame grows (see the island's transition
+              list). `invisible` keeps the hidden links out of the tab order
+              and the accessibility tree, and it flips only after the collapse
+              finishes (visibility is a discrete transition), so closing
+              animates too. */}
+          <div
+            className={cn(
+              'grid transition-[grid-template-rows,visibility] duration-300 ease-out md:hidden',
+              mobileMenuOpen
+                ? 'visible grid-rows-[1fr]'
+                : 'invisible grid-rows-[0fr]',
+            )}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <div
+                className={cn(
+                  'relative border-t border-border/60 px-3 pb-3 pt-2 transition-opacity duration-300',
+                  mobileMenuOpen ? 'opacity-100' : 'opacity-0',
+                )}
               >
-                Hire Me
-              </Button>
+                <div className="flex flex-col gap-0.5">
+                  {NAV_LINKS.map((link) => (
+                    <button
+                      key={link.id}
+                      onClick={() => scrollToSection(link.id)}
+                      className={cn(
+                        'rounded-2xl px-4 py-2.5 text-left text-sm font-medium transition-colors',
+                        active === link.id
+                          ? 'bg-secondary text-foreground'
+                          : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground',
+                      )}
+                    >
+                      {link.label}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  onClick={() => scrollToSection('contact')}
+                  className="mt-3 w-full rounded-2xl"
+                >
+                  Hire Me
+                </Button>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </nav>
     </>
